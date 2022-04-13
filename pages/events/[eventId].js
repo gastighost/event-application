@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { getEventById } from "../../helpers/api-util";
+import { getEventById, getAllEvents } from "../../helpers/api-util";
 import EventSummary from "../../components/event-detail/event-summary";
 import EventLogistics from "../../components/event-detail/event-logistics";
 import EventContent from "../../components/event-detail/event-content";
@@ -43,6 +43,17 @@ export async function getStaticProps(context) {
   };
 }
 
-export async function getStaticPaths() {}
+export async function getStaticPaths() {
+  const events = await getAllEvents();
+
+  const paths = events.map((event) => {
+    return { params: { eventId: event.id } };
+  });
+
+  return {
+    paths: paths,
+    fallback: false,
+  };
+}
 
 export default EventDetailPage;
