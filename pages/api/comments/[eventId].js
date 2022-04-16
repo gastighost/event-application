@@ -27,6 +27,7 @@ async function handler(req, res) {
       text.trim() === ""
     ) {
       res.status(422).json({ message: "Invalid input." });
+      client.close();
       return;
     }
 
