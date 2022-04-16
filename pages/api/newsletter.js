@@ -1,9 +1,18 @@
 import { MongoClient } from "mongodb";
 
-const uri =
-  "mongodb+srv://gaston-roxas:Coder12345@cluster0.oq0dy.mongodb.net/events?retryWrites=true&w=majority";
+async function connectToDatabase() {
+  const uri =
+    "mongodb+srv://gaston-roxas:Coder12345@cluster0.oq0dy.mongodb.net/events?retryWrites=true&w=majority";
 
-const client = new MongoClient(uri);
+  const client = new MongoClient(uri);
+  return client;
+}
+
+async function insertDocument(client, document) {
+  await client.connect();
+
+  await client.db().collection("emails").insertOne(document);
+}
 
 async function handler(req, res) {
   if (req.method === "POST") {
@@ -14,11 +23,20 @@ async function handler(req, res) {
       return;
     }
 
-    await client.connect();
-
-    await client.db().collection("emails").insertOne({ email: userEmail });
-
-    client.close();
+    let client;
+    try {
+      client = await connectToDatabase();
+    } catch (error) {
+      res.status(500).json({ message: "Connecting to the database failed!" });
+      return;
+    }
+    try {
+      await insertDocument(client, { email: userEmail });
+      client.close();
+    } catch (error) {
+      res.status(500).json({ message: "Inserting data failed!" });
+      return;
+    }
 
     res.status(201).json({ message: "Signed up!" });
   }

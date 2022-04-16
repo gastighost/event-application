@@ -16,7 +16,7 @@ function NewsletterRegistration() {
       },
     })
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => console.log(data.message));
 
     // fetch user input (state or refs)
     // optional: validate input
