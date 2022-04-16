@@ -16,6 +16,7 @@ function Comments(props) {
         .then((response) => response.json())
         .then((data) => {
           setComments(data.comments);
+          console.log(data);
         });
     }
   }, [showComments, eventId]);
