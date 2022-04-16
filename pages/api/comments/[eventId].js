@@ -1,4 +1,10 @@
-function handler(req, res) {
+import { MongoClient } from "mongodb";
+const uri =
+  "mongodb+srv://gaston-roxas:Coder12345@cluster0.oq0dy.mongodb.net/events?retryWrites=true&w=majority";
+
+const client = new MongoClient(uri);
+
+async function handler(req, res) {
   const eventId = req.query.eventId;
 
   if (req.method === "POST") {
@@ -16,23 +22,40 @@ function handler(req, res) {
     }
 
     const newComment = {
-      id: new Date().toISOString(),
       email,
       name,
       text,
+      eventId,
     };
-    console.log(email, name, text);
 
-    res.status(201).json({ message: "Added comment!", comments: newComment });
+    await client.connect();
+
+    const result = await client
+      .db()
+      .collection("comments")
+      .insertOne(newComment);
+
+    newComment.id = result.insertedId;
+    console.log(result);
+
+    res.status(201).json({
+      message: "Added comment!",
+      comments: newComment,
+    });
   }
   if (req.method === "GET") {
-    const dummyList = [
-      { id: "c1", name: "Max", text: "A first comment" },
-      { id: "c2", name: "Gaston", text: "A second comment" },
-    ];
+    await client.connect();
 
-    res.status(200).json({ comments: dummyList });
+    const documents = await client
+      .db()
+      .collection("comments")
+      .find()
+      .sort({ _id: -1 })
+      .toArray();
+
+    res.status(200).json({ comments: documents });
   }
+  client.close();
 }
 
 export default handler;
