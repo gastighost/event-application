@@ -19,7 +19,7 @@ export function NotificationContextProvider(props) {
     setActiveNotification(null);
   }
 
-  context = {
+  const context = {
     notification: activeNotification,
     showNotification: showNotificationHandler,
     hideNotification: hideNotificationHandler,
